@@ -201,7 +201,7 @@ function BB_Context:do_Case(line)
         self:failed(line, "Case with no select")
     end
     local var = self.nest_stack[#self.nest_stack]:match("^Select|(.*)")
-    local value = strip(line:match("^%s*Select(.*)"))
+    local value = strip(line:match("^%s*Case(.*)"))
     if value == nil or value == "" then
         self:failed(line, "Select with no value")
         return

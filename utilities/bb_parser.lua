@@ -185,7 +185,7 @@ end
 
 function BB_Context:do_Repeat(line)
     local success = self:simple_func(line, "Repeat", "repeat")
-    table.insert(self.nest_stack, "Repeat")
+    table.insert(self.nest_stack, {"Repeat"} )
 end
 
 function BB_Context:do_Select(line)
@@ -193,20 +193,51 @@ function BB_Context:do_Select(line)
     if not param then
         param = ""
     end
-    table.insert(self.nest_stack, "Select|"..param)
+    table.insert(self.nest_stack, { "Select", param } )
 end
 
 function BB_Context:do_Case(line)
-    if #self.nest_stack == 0 or self.nest_stack[#self.nest_stack]:find("^Select|") == nil then
+    if #self.nest_stack == 0 then
         self:failed(line, "Case with no select")
+        return
     end
-    local var = self.nest_stack[#self.nest_stack]:match("^Select|(.*)")
+    local nest_data = self.nest_stack[#self.nest_stack]
+    if nest_data[1] ~= "Select" then
+        self:failed(line, "Case with no select")
+        return
+    end
+    local var = nest_data[2]
     local value = strip(line:match("^%s*Case(.*)"))
     if value == nil or value == "" then
         self:failed(line, "Select with no value")
         return
     end
-    table.insert(self.code, string.format("if %s == %s then", var, value))
+    local second_case = nest_data[3]
+    
+    if not second_case then
+        table.insert(self.code, string.format("if %s == %s then", var, value))
+    else
+        table.insert(self.code, string.format("elseif %s == %s then", var, value))
+    end
+    
+    -- ensure future ones are elseif
+    nest_data[3] = true
+    self.nest_stack[#self.nest_stack] = nest_data
+end
+
+function BB_Context:do_End(line)
+    if #self.nest_stack == 0 then
+        self:failed(line, "Unexpected End statement")
+        return
+    end
+    local nest_data = self.nest_stack[#self.nest_stack]
+    local endtype = nest_data[1]
+    local value = strip(line:match("^%s*End(.*)"))
+    if endtype ~= value then
+        self:failed(line, "End statement is not matching " .. endtype)
+        return
+    end 
+    table.insert(self.code, "end")
 end
 
 token_dispatch = {
@@ -226,13 +257,13 @@ token_dispatch = {
     Repeat = BB_Context.do_Repeat,
     Select = BB_Context.do_Select,
     Case = BB_Context.do_Case,
+    End = BB_Context.do_End,
     
     --
     -- these are functions we haven't yet coded up Lua translations for
     --
     ["."] = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
     Data = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    End = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
     If = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
     Else = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
     Until = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,

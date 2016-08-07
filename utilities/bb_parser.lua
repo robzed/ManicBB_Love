@@ -24,8 +24,10 @@ function BB_Context:initialize()
     self.load_error = false
     self.defined_functions = {}
     self.undefined_functions = {}
+    self.undefined_function_count = 0
     self.defined_variables = {}
     self.undefined_variables = {}
+    self.undefined_variables_count = 0
     self.globals = {}
     self.nest_stack = {}
     self.code = {}
@@ -324,6 +326,7 @@ function BB_Context:do_function_call(line)
     
     if func and not self.defined_functions[func] then
         self.undefined_functions[func] = true
+        self.undefined_function_count = self.undefined_function_count + 1
     end
     new_params = self:parse_params(params)
     if new_params then
@@ -366,6 +369,7 @@ function BB_Context:parse_expression(expression)
     
     if func and not self.defined_functions[func] then
         self.undefined_functions[func] = true
+        self.undefined_function_count = self.undefined_function_count + 1
     end
     new_params = self:parse_params(params)
     if new_params then
@@ -463,7 +467,7 @@ function BB_Context:bb_parser(src_file)
         self.line_num = self.line_num + 1
     end
     
-    if #self.undefined_functions ~= 0 then
+    if self.undefined_function_count ~= 0 then
         self.load_error = true
         print("Undefined functions:")
         for k,_ in pairs(self.undefined_functions) do
@@ -471,7 +475,7 @@ function BB_Context:bb_parser(src_file)
         end
     end
     
-    if #self.undefined_variables ~= 0 then
+    if self.undefined_variables_count ~= 0 then
         self.load_error = true
         print("Undefined variables:")
         for k,_ in pairs(self.undefined_variables) do

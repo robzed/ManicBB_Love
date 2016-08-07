@@ -31,7 +31,18 @@ function BB_Context:initialize()
     self.globals = {}
     self.nest_stack = {}
     self.code = {}
+
+    self:add_external_function("LoadImage")
+    self:add_external_function("LoadAnimImage")
+    self:add_external_function("LoadSound")
+    self:add_external_function("CreateImage")
+    self:add_external_function("LoadHiScore")
 end
+
+function BB_Context:add_external_function(name)
+    self.defined_functions[name] = true
+end
+
 
 function BB_Context:show_line(line)
     print("["..self.filename.." LINE "..self.line_num.."] "..line)
@@ -242,6 +253,11 @@ function BB_Context:do_End(line)
     table.insert(self.code, "end")
 end
 
+function BB_Context:not_implemented(line)
+    self:failed(line, "NOT IMPLEMENTED")
+end
+
+
 token_dispatch = {
     [";"] = function() end,
     -- this functions is a call, but without brackets. We just parse this as a 
@@ -264,34 +280,34 @@ token_dispatch = {
     --
     -- these are functions we haven't yet coded up Lua translations for
     --
-    ["."] = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Data = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    If = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Else = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Until = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    StopChannel = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    While = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Wend = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    SetBuffer = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Flip = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    For = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Next = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Return = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Color = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Rect = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    WriteInt = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    CloseFile = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    PauseChannel = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    ResumeChannel = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Plot = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Line = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    WritePixelFast = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    ClsColor = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Cls = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    SoundPitch = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    PlaySound = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Restore = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
-    Read = function(self, line) self:failed(line, "NOT IMPLEMENTED") end,
+    ["."] = BB_Context.not_implemented,
+    Data = BB_Context.not_implemented,
+    If = BB_Context.not_implemented,
+    Else = BB_Context.not_implemented,
+    Until = BB_Context.not_implemented,
+    StopChannel = BB_Context.not_implemented,
+    While = BB_Context.not_implemented,
+    Wend = BB_Context.not_implemented,
+    SetBuffer = BB_Context.not_implemented,
+    Flip = BB_Context.not_implemented,
+    For = BB_Context.not_implemented,
+    Next = BB_Context.not_implemented,
+    Return = BB_Context.not_implemented,
+    Color = BB_Context.not_implemented,
+    Rect = BB_Context.not_implemented,
+    WriteInt = BB_Context.not_implemented,
+    CloseFile = BB_Context.not_implemented,
+    PauseChannel = BB_Context.not_implemented,
+    ResumeChannel = BB_Context.not_implemented,
+    Plot = BB_Context.not_implemented,
+    Line = BB_Context.not_implemented,
+    WritePixelFast = BB_Context.not_implemented,
+    ClsColor = BB_Context.not_implemented,
+    Cls = BB_Context.not_implemented,
+    SoundPitch = BB_Context.not_implemented,
+    PlaySound = BB_Context.not_implemented,
+    Restore = BB_Context.not_implemented,
+    Read = BB_Context.not_implemented,
 }
 
 

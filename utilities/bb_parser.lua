@@ -66,8 +66,10 @@ function BB_Context:do_Include(line)
     if filename then
         --print("Parsing: ", filename)
         local old_ln = self.line_num
+        local old_filename = self.filename
         self:bb_parser(filename)
         self.line_num = old_ln
+        self.filename = old_filename
     else
         print("Problem with getting filename from Include")
         self:show_line(line)

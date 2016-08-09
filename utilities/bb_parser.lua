@@ -254,7 +254,8 @@ function BB_Context:do_End(line)
 end
 
 function BB_Context:not_implemented(line)
-    self:failed(line, "NOT IMPLEMENTED")
+    --self:failed(line, "NOT IMPLEMENTED")
+    table.insert(self.code, string.format('not_implemented("%q")', line))
 end
 
 

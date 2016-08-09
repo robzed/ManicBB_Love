@@ -242,13 +242,16 @@ function BB_Context:do_Case(line)
 end
 
 function BB_Context:do_End(line)
+    local value = strip(line:match("^%s*End(.*)"))
     if #self.nest_stack == 0 then
-        self:failed(line, "Unexpected End statement")
+        -- only one case where End without a counterpart is allowed ... program end.
+        if value ~= "" then
+            self:failed(line, "Unexpected End statement")
+        end
         return
     end
     local nest_data = self.nest_stack[#self.nest_stack]
     local endtype = nest_data[1]
-    local value = strip(line:match("^%s*End(.*)"))
     if endtype ~= value then
         self:failed(line, "End statement is not matching " .. endtype)
         return
@@ -310,6 +313,7 @@ token_dispatch = {
     Select = BB_Context.do_Select,
     Case = BB_Context.do_Case,
     End = BB_Context.do_End,
+    If = BB_Context.do_If,
     Until = BB_Context.do_Until,
     
     --

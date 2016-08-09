@@ -201,6 +201,7 @@ end
 function BB_Context:do_Repeat(line)
     local success = self:simple_func(line, "Repeat", "repeat")
     table.insert(self.nest_stack, {"Repeat"} )
+    table.insert(self.code, "repeat")
 end
 
 function BB_Context:do_Select(line)
@@ -253,7 +254,26 @@ function BB_Context:do_End(line)
         return
     end 
     table.insert(self.code, "end")
+    table.remove(self.nest_stack)
 end
+
+function BB_Context:do_Until(line)
+    if #self.nest_stack == 0 then
+        self:failed(line, "Unexpected Until statement")
+        return
+    end
+    local nest_data = self.nest_stack[#self.nest_stack]
+    local endtype = nest_data[1]
+    if endtype ~= "Repeat" then
+        self:failed(line, "Until statement is not matching Repeat")
+        return
+    end
+    local value = strip(line:match("^%s*Until(.*)"))
+    table.insert(self.code, string.format("until calc_expr('%s') then", value))
+    print("@todo: Until expression decode - not completed")
+    table.remove(self.nest_stack)
+end
+
 
 function BB_Context:do_If(line)
     local value = strip(line:match("^%s*If(.*)"))
@@ -290,6 +310,7 @@ token_dispatch = {
     Select = BB_Context.do_Select,
     Case = BB_Context.do_Case,
     End = BB_Context.do_End,
+    Until = BB_Context.do_Until,
     
     --
     -- these are functions we haven't yet coded up Lua translations for
@@ -298,7 +319,6 @@ token_dispatch = {
     Data = BB_Context.not_implemented,
     If = BB_Context.do_If,
     Else = BB_Context.not_implemented,
-    Until = BB_Context.not_implemented,
     StopChannel = BB_Context.not_implemented,
     While = BB_Context.not_implemented,
     Wend = BB_Context.not_implemented,

@@ -321,7 +321,6 @@ token_dispatch = {
     --
     ["."] = BB_Context.not_implemented,
     Data = BB_Context.not_implemented,
-    If = BB_Context.do_If,
     Else = BB_Context.not_implemented,
     StopChannel = BB_Context.not_implemented,
     While = BB_Context.not_implemented,

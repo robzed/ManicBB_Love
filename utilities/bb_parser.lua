@@ -254,8 +254,14 @@ function BB_Context:do_End(line)
 end
 
 function BB_Context:do_If(line)
-    print("do_If not completed")
-    os.exit(1)
+    local value = strip(line:match("^%s*If(.*)"))
+    if value == nil or value == "" then
+        self:failed(line, "If with no value")
+        return
+    end
+    table.insert(self.nest_stack, { "If" } )
+    table.insert(self.code, string.format("if calc_expr('%s') then", value))
+    print("@todo: If expression decode - not completed")
 end
 
 function BB_Context:not_implemented(line)

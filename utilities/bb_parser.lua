@@ -92,8 +92,12 @@ function BB_Context:do_function_definition(line)
         self.load_error = true
     else
         table.insert(self.nest_stack, { "Function" } )
-        table.insert(self.code, string.format("def %s(%s)", name, parameters))
-        print("@todo: Function parameter decode - not completed")
+        local p = self.parse_params(parameters)
+        if p then
+            table.insert(self.code, string.format("def %s(%s)", name, p))
+        else
+            self:failed("Couldn't parse parameters in function definition")
+        end
     end
     
 end
@@ -276,22 +280,34 @@ function BB_Context:do_Until(line)
         self:failed(line, "Until statement is not matching Repeat")
         return
     end
-    local value = strip(line:match("^%s*Until(.*)"))
-    table.insert(self.code, string.format("until calc_expr('%s') then", value))
-    print("@todo: Until expression decode - not completed")
+    local expr = strip(line:match("^%s*Until(.*)"))
+    if expr == nil or expr == "" then
+        self:failed(line, "Until statement has no expression")
+        return
+    end
     table.remove(self.nest_stack)
+    local e = self:parse_expression(expr)
+    if e then
+        table.insert(self.code, string.format("until %s", e))
+    else
+        self:failed("Couldn't parse expression in Until statement")
+    end
 end
 
 
 function BB_Context:do_If(line)
-    local value = strip(line:match("^%s*If(.*)"))
-    if value == nil or value == "" then
-        self:failed(line, "If with no value")
+    local expr = strip(line:match("^%s*If(.*)"))
+    if expr == nil or expr == "" then
+        self:failed(line, "If with no expression")
         return
     end
     table.insert(self.nest_stack, { "If" } )
-    table.insert(self.code, string.format("if calc_expr('%s') then", value))
-    print("@todo: If expression decode - not completed")
+    local e = self:parse_expression(expr)
+    if e then
+        table.insert(self.code, string.format("if %s then", e))
+    else
+        self:failed("Couldn't parse expression in If statement")
+    end
 end
 
 function BB_Context:not_implemented(line)
@@ -389,6 +405,8 @@ function BB_Context:do_function_call(line)
     new_params = self:parse_params(params)
     if new_params then
         table.insert(self.code, func .. "(" .. table.concat(new_params, ", ") .. ")")
+    else
+        return nil
     end
     
     return func
@@ -432,6 +450,8 @@ function BB_Context:parse_expression(expression)
     new_params = self:parse_params(params)
     if new_params then
         exp = func .. "(" .. table.concat(new_params, ", ") .. ")"
+    else
+        exp = nil
     end
       
     return exp

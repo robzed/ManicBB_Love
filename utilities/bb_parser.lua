@@ -253,6 +253,11 @@ function BB_Context:do_End(line)
     table.insert(self.code, "end")
 end
 
+function BB_Context:do_If(line)
+    print("do_If not completed")
+    os.exit(1)
+end
+
 function BB_Context:not_implemented(line)
     --self:failed(line, "NOT IMPLEMENTED")
     table.insert(self.code, string.format('not_implemented("%q")', line))
@@ -283,7 +288,7 @@ token_dispatch = {
     --
     ["."] = BB_Context.not_implemented,
     Data = BB_Context.not_implemented,
-    If = BB_Context.not_implemented,
+    If = BB_Context.do_If,
     Else = BB_Context.not_implemented,
     Until = BB_Context.not_implemented,
     StopChannel = BB_Context.not_implemented,

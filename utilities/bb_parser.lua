@@ -89,8 +89,13 @@ function BB_Context:do_function_definition(line)
     elseif token_dispatch[name] then
         print("Known token")
         self:show_line(line)
-        --self.load_error = true
+        self.load_error = true
+    else
+        table.insert(self.nest_stack, { "Function" } )
+        table.insert(self.code, string.format("def %s(%s)", name, parameters))
+        print("@todo: Function parameter decode - not completed")
     end
+    
 end
 
 function BB_Context:check_solo_keyword(line, keyword)

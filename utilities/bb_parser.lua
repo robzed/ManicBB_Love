@@ -438,7 +438,7 @@ function BB_Context:parse_expression(expression)
     
     -- function expression?
     -- "  name   ( params  )   "
-    local func, params = expression:match("^%s*([_%a][_%w]*)%s*%((.*)%)")    -- ignore everything after ')'
+    local func, params = expression:match("^%s*([_%a][_%w]*)%s*%((.*)%)%s*$")    -- used to ignore everything after ')'
     if not func then
         return nil
     end

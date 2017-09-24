@@ -70,10 +70,11 @@ function love.load(arg)
     if context.load_error then
         love.event.quit()
     end
-    print("Code so far:")
+    --[[print("Code so far:")
     for _,v in ipairs(context.code) do
         print("  "..v)
     end
+    --]]
 end
 
 function love.draw()

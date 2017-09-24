@@ -162,7 +162,7 @@ function BB_Context:do_Global(line)
                 m = self:make_safe_identifier(m)
                 self.globals[m] = true
             else
-                self:failed(line, "Global didn't understand identifer")
+                self:failed(line, "Global didn't understand identifer " .. m)
             end
         end
     else
@@ -436,9 +436,16 @@ function BB_Context:parse_expression(expression)
         return exp
     end
     
+    -- temp hack for conditions
+    --print(expression)
+    --exp = expression:match('^%s*([_%w]%$?)%s*%<%>%d+%s*$')
+    --if exp then
+    --    return exp
+    --end
+    
     -- function expression?
     -- "  name   ( params  )   "
-    local func, params = expression:match("^%s*([_%a][_%w]*)%s*%((.*)%)%s*$")    -- used to ignore everything after ')'
+    local func, params = expression:match("^%s*([_%a][_%w]*)%s*%((.*)%)%s*(;?.*)$")    -- used to ignore everything after ')'
     if not func then
         return nil
     end

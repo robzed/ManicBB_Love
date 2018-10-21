@@ -425,12 +425,16 @@ function BB_Context:make_safe_identifier(id)
 end
 
 function BB_Context:parse_expression(expression)
-    local exp = expression:match("^%s*([_%w]*%$?)%s*$")
+    -- a single identifier, one or more of all alphanumeric characters and underscores, followed by an optional $, surrounded by space
+    -- capture the identifier
+    local exp = expression:match("^%s*([_%a][_%w]*%$?)%s*$")
     if exp then
         -- simple expression
         return self:make_safe_identifier(exp)
     end
     
+    -- a single string literal "like this"
+    -- capture the string
     exp = expression:match('^%s*(".*")%s*$')
     if exp then
         return exp
@@ -445,7 +449,7 @@ function BB_Context:parse_expression(expression)
     
     -- function expression?
     -- "  name   ( params  )   "
-    local func, params = expression:match("^%s*([_%a][_%w]*)%s*%((.*)%)%s*(;?.*)$")    -- used to ignore everything after ')'
+    local func, params = expression:match("^%s*([_%a][_%w]*)%s*%((.*)%)%s*;?%s*$")    -- used to ignore everything after ')'
     if not func then
         return nil
     end
